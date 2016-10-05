@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<extension key="coop.symbiotic.sparkpostrouter" type="module">
+  <file>sparkpostrouter</file>
+  <name>SparkPost Router</name>
+  <description>When using subaccounts, reroutes sparkpost bounces to the appropriate site.</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Mathieu Lutfy</author>
+    <email>mathieu@symbiotic.coop</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://github.com/coopsymbiotic/coop.symbiotic.sparkpostrouter</url>
+    <url desc="Documentation">https://github.com/coopsymbiotic/coop.symbiotic.sparkpostrouter</url>
+    <url desc="Support">https://github.com/coopsymbiotic/coop.symbiotic.sparkpostrouter</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2016-10-05</releaseDate>
+  <version>1.0</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.7</ver>
+  </compatibility>
+  <comments></comments>
+  <civix>
+    <namespace>CRM/Sparkpostrouter</namespace>
+  </civix>
+</extension>
