@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/sparkpostrouter/callback</path>
+    <page_callback>CRM_Sparkpostrouter_Page_Callback</page_callback>
+    <title>SparkPost Router Callback</title>
+    <access_callback>1</access_callback>
+  </item>
+</menu>
