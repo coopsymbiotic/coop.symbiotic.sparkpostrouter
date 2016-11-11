@@ -24,11 +24,10 @@ Todo / Brainstorm
 -----------------
 
 - Rename API Sparkpostrouter.process_messages to Job.sparkpostrouter_process?
-- Fix subaccount/sender_domain mapping.
-- How to handle bounces for transactional emails? (Mandrill had a fake mailing) - for com.cividesk.email.sparkpost
 - Log an Activity with the exact bounce message? - for com.cividesk.email.sparkpost
 - Reports? Graphs? (dataexplorer or civisualize)
 - Status Check to monitor high bounce rates?
+- Status Check to monitor that the job is running regularly
 - When editing the webhook on a contact, test the webhook?
 - Automatic creation of subaccounts in SparkPost?
 
