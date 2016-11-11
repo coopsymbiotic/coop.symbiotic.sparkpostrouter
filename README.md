@@ -14,20 +14,23 @@ Requirements
 
 - CiviCRM >= 4.7
 - PHP 5.6
-- MySQL 5.7 or MariaDB 10.1
 
 Installation
 ------------
 
 If installing from source, you must have composer and run "composer install".
 
-Todo
-----
+Todo / Brainstorm
+-----------------
 
 - Rename API Sparkpostrouter.process_messages to Job.sparkpostrouter_process?
 - Fix subaccount/sender_domain mapping.
 - How to handle bounces for transactional emails? (Mandrill had a fake mailing) - for com.cividesk.email.sparkpost
 - Log an Activity with the exact bounce message? - for com.cividesk.email.sparkpost
+- Reports? Graphs? (dataexplorer or civisualize)
+- Status Check to monitor high bounce rates?
+- When editing the webhook on a contact, test the webhook?
+- Automatic creation of subaccounts in SparkPost?
 
 Support
 -------
@@ -49,4 +52,5 @@ Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
 
 (C) 2016 Mathieu Lutfy <mathieu@symbiotic.coop>  
+(C) 2016 Stéphane Lussier <stephane@symbiotic.coop>  
 (C) 2016 Coop SymbioTIC <info@symbiotic.coop>
