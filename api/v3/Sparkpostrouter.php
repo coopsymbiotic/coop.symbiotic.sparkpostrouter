@@ -17,13 +17,8 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
   require 'vendor/autoload.php';
   $client = new GuzzleHttp\Client();
 
+  $custom_table_name = CRM_Core_DAO::singleValueQuery('SELECT table_name FROM civicrm_custom_group WHERE name = "Sparkpost_Router"');
   $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_sparkpost_router WHERE relay_status = 0');
-
-  // FIXME: we should use subaccounts for everything
-  // this way the 'subaccount_id' would always be available?
-  $map_clients = [
-    'symbiotic.coop' => 'https://crm.symbiotic.coop/fr/civicrm/sparkpost/callback',
-  ];
 
   while ($dao->fetch()) {
     $event = json_decode($dao->data);
@@ -42,10 +37,25 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       continue;
     }
 
-    if (isset($map_clients[$sender_domain])) {
-      $webhook_url = $map_clients[$sender_domain];
+    // Lookup subaccount
+    // TODO: move to BAO
+    if (isset($event->subaccount_id)) {
+      $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_subaccount = %1', [
+        1 => [$event->subaccount_id, 'Integer'],
+      ]);
     }
-    else {
+
+    // Lookup by sender domain, if subaccount not found
+    // TODO: move to BAO
+    if (empty($webhook_url)) {
+      // FIXME: this isn't ideal, could cause problems if: fooacme.org and acme.org
+      // Then again, that's why we use subaccounts, so this is just temporary?
+      $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_domains LIKE %1', [
+        1 => ['%' . $sender_domain . '%', 'String'],
+      ]);
+    }
+
+    if (!$webhook_url) {
       Civi::log()->warning(ts("Could not find webhook for sender: %1", [1=>$sender_domain]));
       // FIXME:
       // - move to BAO

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<CustomData>
+  <CustomGroups>
+    <CustomGroup>
+      <name>Sparkpost_Router</name>
+      <title>Sparkpost Router</title>
+      <extends>Organization</extends>
+      <style>Inline</style>
+      <collapse_display>0</collapse_display>
+      <help_pre></help_pre>
+      <help_post></help_post>
+      <weight>6</weight>
+      <is_active>1</is_active>
+      <table_name>civicrm_value_sparkpost_router_6</table_name>
+      <is_multiple>0</is_multiple>
+      <collapse_adv_display>1</collapse_adv_display>
+      <created_date>2016-11-11 11:11:11</created_date>
+      <is_reserved>1</is_reserved>
+    </CustomGroup>
+  </CustomGroups>
+  <CustomFields>
+    <CustomField>
+      <custom_group_name>Sparkpost_Router</custom_group_name>
+      <name>SparkPost_Subaccount</name>
+      <label>SparkPost Subaccount</label>
+      <data_type>Int</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>1</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>64</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>sparkpost_subaccount</column_name>
+      <in_selector>1</in_selector>
+    </CustomField>
+    <CustomField>
+      <name>SparkPost_Domains</name>
+      <custom_group_name>Sparkpost_Router</custom_group_name>
+      <label>SparkPost Domains</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>2</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>sparkpost_domains</column_name>
+      <in_selector>1</in_selector>
+    </CustomField>
+    <CustomField>
+      <name>SparkPost_Webhook_URL</name>
+      <custom_group_name>Sparkpost_Router</custom_group_name>
+      <label>SparkPost Webhook URL</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>3</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <help_post>Ex: https://example.org/civicrm/sparkpost/callback (NB: if you use language prefixes in URLs that may cause redirections, you must include it, ex: https://example.org/en/civicrm/sparkpost/callback)</help_post>
+      <column_name>sparkpost_webhook_url</column_name>
+      <in_selector>1</in_selector>
+    </CustomField>
+  </CustomFields>
+</CustomData>
