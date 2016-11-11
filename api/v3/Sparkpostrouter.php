@@ -26,7 +26,7 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     $sender_domain = explode('@', $friendly_from)[1];
     $webhook_url = NULL;
 
-    if (!in_array($event->type, ['bounce', 'spam_complaint', 'policy_rejection'])) {
+    if (!in_array($event->type, ['bounce', 'spam_complaint', 'policy_rejection', 'open', 'click'])) {
       // FIXME:
       // - move to BAO
       // - document statuses? (ex: 3 = ignored)
