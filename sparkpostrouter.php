@@ -125,31 +125,31 @@ function sparkpostrouter_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) 
 }
 
 /**
- * Functions below this ship commented out. Uncomment as required.
+ * Implements hook_civicrm_check().
  *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_check
+ */
+function sparkpostrouter_civicrm_check(&$messages) {
+  $dao = CRM_Core_DAO::executeQuery('SELECT count(*) as cnt FROM civicrm_sparkpost_router WHERE relay_status = 0');
+  if ($dao->fetch()) {
+    $cnt = $dao->cnt;
 
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function sparkpostrouter_civicrm_preProcess($formName, &$form) {
+    if ($cnt < 5000) {
+      $status = \Psr\Log\LogLevel::INFO;
+    } elseif ($cnt < 20000) {
+      $status = \Psr\Log\LogLevel::WARNING;
+    } else {
+      $status = \Psr\Log\LogLevel::ERROR;
+    }
 
-} // */
+    $messages[] = new CRM_Utils_Check_Message(
+     'sparkpostrouter',
+     ts('Items waiting to be processed : %1', array(1 => $cnt)),
+     ts('Sparkpost Router'),
+     $status,
+     'fa-tasks'
+    );
 
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function sparkpostrouter_civicrm_navigationMenu(&$menu) {
-  _sparkpostrouter_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'coop.symbiotic.sparkpostrouter')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
-    'permission' => 'access CiviReport,access CiviContribute',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _sparkpostrouter_civix_navigationMenu($menu);
-} // */
+  }
+}
+
