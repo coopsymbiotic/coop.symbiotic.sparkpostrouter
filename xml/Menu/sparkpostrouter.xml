@@ -6,4 +6,11 @@
     <title>SparkPost Router Callback</title>
     <access_callback>1</access_callback>
   </item>
+  <item>
+    <path>civicrm/admin/setting/sparkpostrouter</path>
+    <title>SparkPost Router Settings</title>
+    <page_callback>CRM_Sparkpostrouter_Form_Settings</page_callback>
+    <adminGroup>System Settings</adminGroup>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>
