@@ -132,7 +132,7 @@ function sparkpostrouter_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) 
 function sparkpostrouter_civicrm_check(&$messages) {
 
   $cnt = 0;
-  $latest_unprocessed = '-aucun-';
+  $latest_unprocessed = ts('-none-');
   $unprocessed_in_hours = 0;
 
   // unprocessed count
