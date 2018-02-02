@@ -18,7 +18,17 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
   $client = new GuzzleHttp\Client();
 
   $custom_table_name = CRM_Core_DAO::singleValueQuery('SELECT table_name FROM civicrm_custom_group WHERE name = "Sparkpost_Router"');
-  $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_sparkpost_router WHERE relay_status = 0');
+  $dao = NULL;
+
+  // Allow force-replay of a specific message if the ID is provided.
+  if (!empty($params['id'])) {
+    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_sparkpost_router WHERE id = %1', [
+      1 => [$params['id'], 'Positive'],
+    ]);
+  }
+  else {
+    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_sparkpost_router WHERE relay_status = 0');
+  }
 
   while ($dao->fetch()) {
     $event = json_decode($dao->data);
