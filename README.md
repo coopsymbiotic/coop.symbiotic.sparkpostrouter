@@ -20,6 +20,11 @@ Installation
 
 If installing from source, you must have composer and run "composer install".
 
+Configure a cron job along the following lines:
+/10 * * * * /usr/bin/env php /usr/local/bin/drush -u 1 @crm.yourcentraldomain.org cvapi Sparkpostrouter.process_messages
+
+where crm.yourcentraldomain.org is your central CRM where you have contact records for all your clients, and where you store the webhook URL of the client (the extension does not hardcode the webhook, because it depends on whether the site is bilingual, Drupal7/8/WP/J, etc).
+
 Todo / Brainstorm
 -----------------
 
