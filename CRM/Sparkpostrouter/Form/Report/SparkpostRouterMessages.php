@@ -164,35 +164,6 @@ class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report
     $this->setParams($this->controller->exportValues($this->_name));
 
     parent::where();
-
-    // FIXME: for some reason, probably the same bug as for columns, it's not setting submitValues in $this->_params?
-    $clauses = [];
-
-    if (!empty($this->_submitValues['subaccount_id_value'])) {
-      $clauses[] = 'subaccount_id = ' . intval($this->_submitValues['subaccount_id_value']);
-    }
-
-    $dates = ['received_date', 'relay_date'];
-
-    foreach ($dates as $field) {
-      if ($t = $this->dateClause($field, $this->_submitValues[$field . '_relative'], $this->_submitValues[$field . '_from'], $this->_submitValues[$field . '_to'])) {
-        $clauses[] = $t;
-      }      
-    }
-
-    if (!empty($this->_submitValues['data_value'])) {
-      // FIXME: input validation
-      $clauses[] = 'data LIKE "%' . $this->_submitValues['data_value'] . '%"';
-    }
-
-    if (!empty($this->_submitValues['type_value'])) {
-      // FIXME: input validation
-      $clauses[] = 'type = "' . $this->_submitValues['type_value'] . '"';
-    }
-
-    if (!empty($clauses)) {
-      $this->_where = ' WHERE ' . implode($clauses, ' AND ') . ' ';
-    }
   }
 
   public function limit($rowCount = self::ROW_COUNT_LIMIT) {
