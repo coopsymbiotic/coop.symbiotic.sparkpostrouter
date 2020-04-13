@@ -84,26 +84,37 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       0 => $obj,
     ];
 
-    $response = $client->post($webhook_url, [
-      'body' => json_encode($data),
-    ]);
-
-    $code = $response->getStatusCode();
-
-    if ($code == 200) {
-      CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 1, relay_date = NOW() WHERE id = %1', [
-        1 => [$dao->id, 'Positive'],
+    try {
+      $response = $client->post($webhook_url, [
+        'body' => json_encode($data),
       ]);
-      $processed++;
+
+      $code = $response->getStatusCode();
+
+      if ($code == 200) {
+        CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 1, relay_date = NOW() WHERE id = %1', [
+          1 => [$dao->id, 'Positive'],
+        ]);
+        $processed++;
+      }
+      else {
+        // FIXME:
+        // - move to BAO
+        // - log a more explicit error?
+        CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 2, relay_date = NOW() WHERE id = %1', [
+          1 => [$dao->id, 'Positive'],
+        ]);
+        $errors++;
+      }
     }
-    else {
-      // FIXME:
-      // - move to BAO
-      // - log a more explicit error?
-      CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 2, relay_date = NOW() WHERE id = %1', [
-        1 => [$dao->id, 'Positive'],
+    catch (Exception $e) {
+      Civi::log()->error('SparkpostRouter: error processing message', [
+        'error' => $e->getMessage(),
+        'webhook' => $webhook_url,
+        'data' => $data,
       ]);
-      $errors++;
+
+      throw new Exception('SparkpostRouter: error processing message to webhook: ' . $webhook_url . ': ' . $e->getMessage());
     }
   }
 
