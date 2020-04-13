@@ -140,12 +140,12 @@ function sparkpostrouter_civicrm_check(&$messages) {
   if ($dao->fetch()) {
     $cnt = $dao->cnt;
   }
-  
+
   // older unprocessed
   $dao = CRM_Core_DAO::executeQuery("
-SELECT -TIMESTAMPDIFF(HOUR, NOW(), received_date) AS hours, received_date latest_date 
-FROM civicrm_sparkpost_router 
-WHERE relay_status = 0 
+SELECT -TIMESTAMPDIFF(HOUR, NOW(), received_date) AS hours, received_date latest_date
+FROM civicrm_sparkpost_router
+WHERE relay_status = 0
 ORDER BY received_date LIMIT 1");
   if ($dao->fetch()) {
     $latest_unprocessed = $dao->latest_date;
