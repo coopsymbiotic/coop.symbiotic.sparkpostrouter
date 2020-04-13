@@ -14,7 +14,6 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
   $processed = 0;
   $errors = 0;
 
-  require 'vendor/autoload.php';
   $client = new GuzzleHttp\Client();
 
   $custom_table_name = CRM_Core_DAO::singleValueQuery('SELECT table_name FROM civicrm_custom_group WHERE name = "Sparkpost_Router"');
