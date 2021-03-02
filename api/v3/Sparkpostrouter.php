@@ -86,7 +86,8 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
 
     try {
       $response = $client->post($webhook_url, [
-        'body' => json_encode($data),
+        'json' => $data,
+        'allow_redirects' => false,
       ]);
 
       $code = $response->getStatusCode();
@@ -98,13 +99,13 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
         $processed++;
       }
       else {
-        // FIXME:
-        // - move to BAO
-        // - log a more explicit error?
-        CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 2, relay_date = NOW() WHERE id = %1', [
-          1 => [$dao->id, 'Positive'],
+        Civi::log()->error('SparkpostRouter: error processing message, invalid response code. Make sure it is not redirecting.', [
+          'error' => 'Received http response ' . $code,
+          'webhook' => $webhook_url,
+          'data' => $data,
         ]);
-        $errors++;
+
+        throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
       }
     }
     catch (Exception $e) {
