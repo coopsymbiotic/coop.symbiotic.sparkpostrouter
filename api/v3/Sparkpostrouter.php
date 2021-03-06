@@ -65,15 +65,7 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     }
 
     if (!$webhook_url) {
-      Civi::log()->warning(ts("Could not find webhook for sender: %1", [1=>$sender_domain]));
-      // FIXME:
-      // - move to BAO
-      // - log a more explicit error?
-      CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 2, relay_date = NOW() WHERE id = %1', [
-        1 => [$dao->id, 'Positive'],
-      ]);
-      $errors++;
-      continue;
+      throw new Exception("SparkpostRouter: error processing message, subaccount_id {$event->subaccount_id}, domain: {$sender_domain} does not have a webhook setup (check the contact record for that client).");
     }
 
     $obj = new stdClass();
