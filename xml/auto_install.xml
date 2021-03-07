@@ -53,7 +53,27 @@
       <text_length>255</text_length>
       <note_columns>60</note_columns>
       <note_rows>4</note_rows>
+      <help_post>This is currently used as a fallback, if the subaccount_id was not found, but is considered legacy and is kept for convenience only.</help_post>
       <column_name>sparkpost_domains</column_name>
+      <in_selector>1</in_selector>
+    </CustomField>
+    <CustomField>
+      <name>subaddress</name>
+      <custom_group_name>Sparkpost_Router</custom_group_name>
+      <label>From Subaddress</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>3</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <help_post>Shared From domain (ex: generic email notification domain) can use a subaddress (ex: noreply+sitename@example.org) to route bounces. IMPORTANT: You must still set the SparkPost subaccount.</help_post>
+      <column_name>subaddress</column_name>
       <in_selector>1</in_selector>
     </CustomField>
     <CustomField>
@@ -65,7 +85,7 @@
       <is_required>0</is_required>
       <is_searchable>1</is_searchable>
       <is_search_range>0</is_search_range>
-      <weight>3</weight>
+      <weight>4</weight>
       <is_active>1</is_active>
       <is_view>0</is_view>
       <text_length>255</text_length>

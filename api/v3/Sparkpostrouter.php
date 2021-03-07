@@ -33,11 +33,11 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     $event = json_decode($dao->data);
     $friendly_from = $event->friendly_from;
     $sender_domain = explode('@', $friendly_from)[1];
+    $subaddress = '';
     $webhook_url = NULL;
 
     if (!in_array($event->type, ['bounce', 'spam_complaint', 'policy_rejection', 'open', 'click'])) {
       // FIXME:
-      // - move to BAO
       // - document statuses? (ex: 3 = ignored)
       CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 3, relay_date = NOW() WHERE id = %1', [
         1 => [$dao->id, 'Positive'],
@@ -46,26 +46,39 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       continue;
     }
 
-    // Lookup subaccount
-    // TODO: move to BAO
+    // Check for a subaddress
+    // friendly_from
+    if (preg_match('/^[-_0-9a-zA-Z]+\+([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
+      $subaddress = $matches[1];
+    }
+
+    // Lookup subaccount, it can be zero
     if (isset($event->subaccount_id)) {
-      $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_subaccount = %1', [
-        1 => [$event->subaccount_id, 'Integer'],
-      ]);
+      if ($subaddress) {
+        $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_subaccount = %1 AND subaddress = %2', [
+          1 => [$event->subaccount_id, 'Integer'],
+          2 => [$subaddress, 'String'],
+        ]);
+      }
+      else {
+        $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_subaccount = %1 AND (subaddress = "" OR subaddress is NULL)', [
+          1 => [$event->subaccount_id, 'Integer'],
+        ]);
+      }
     }
 
     // Lookup by sender domain, if subaccount not found
-    // TODO: move to BAO
+    // We do not support a subaddress here, because this kind of check is legacy-only.
     if (empty($webhook_url)) {
       // FIXME: this isn't ideal, could cause problems if: fooacme.org and acme.org
       // Then again, that's why we use subaccounts, so this is just temporary?
-      $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_domains LIKE %1', [
+      $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_domains LIKE %1 AND (subaddress = "" OR subaddress IS NULL)', [
         1 => ['%' . $sender_domain . '%', 'String'],
       ]);
     }
 
     if (!$webhook_url) {
-      throw new Exception("SparkpostRouter: error processing message, subaccount_id {$event->subaccount_id}, domain: {$sender_domain} does not have a webhook setup (check the contact record for that client).");
+      throw new Exception("SparkpostRouter: webhook not found (check the contact record for that client): subaccount_id {$event->subaccount_id}, domain: {$sender_domain}, subaddress: {$subaddress}.");
     }
 
     $obj = new stdClass();
