@@ -1,21 +1,19 @@
 <?php
 
 class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report_Form {
-  protected $_addressField = FALSE;
-  protected $_emailField = FALSE;
   protected $_summary = NULL;
-  protected $_customGroupExtends = array();
+  protected $_customGroupExtends = [];
   protected $_customGroupGroupBy = FALSE;
 
-  protected $_params = [];
-
   public function __construct() {
-    $this->_groupFilter = FALSE;
-    $this->_tagFilter = FALSE;
-
     parent::__construct();
 
+    // Reset columns
     $this->_columns = [];
+
+    // All fields are required, so we must set this otherwise $this->_params
+    // will not be populated
+    $this->_noFields = TRUE;
 
     $this->_columns['civicrm_sparkpost_router'] = [
       'alias' => 'spm',
@@ -69,6 +67,19 @@ class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report
           'title' => ts('Subject'),
           'type' => CRM_Utils_Type::T_STRING,
           'required' => TRUE,
+          'pseudofield' => TRUE,
+        ],
+        'email' => [
+          'title' => ts('Email'),
+          'type' => CRM_Utils_Type::T_STRING,
+          'required' => TRUE,
+          'pseudofield' => TRUE,
+        ],
+        'reason' => [
+          'title' => ts('Reason'),
+          'type' => CRM_Utils_Type::T_STRING,
+          'required' => TRUE,
+          'pseudofield' => TRUE,
         ],
         'data' => [
           'title' => ts('Data'),
@@ -76,28 +87,29 @@ class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report
           'required' => TRUE,
         ],
       ],
-      'filters' => array(
-        'subaccount_id' => array(
+      'filters' => [
+        'subaccount_id' => [
           'title' => ts('Subaccount ID'),
           'operatorType' => CRM_Report_Form::OP_INT,
           'type' => CRM_Utils_Type::T_INT,
-        ),
-        'type' => array(
+        ],
+        'type' => [
           'title' => ts('Type'),
-          'operatorType' => CRM_Report_Form::OP_STRING,
+          'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+          'options' => ['delay' => ts('Delay'), 'bounce' => ts('Bounce'), 'spam_complaint' => ts('Spam complaint'), 'out_of_band' => ts('Out of band'), 'policy_rejection' => ts('Policy rejection')],
           'type' => CRM_Utils_Type::T_STRING,
-        ),
-        'received_date' => array(
+        ],
+        'received_date' => [
           'title' => ts('Received Date'),
           'operatorType' => CRM_Report_Form::OP_DATE,
           'type' => CRM_Utils_Type::T_DATE,
-        ),
-        'relay_date' => array(
+        ],
+        'relay_date' => [
           'title' => ts('Relayed Date'),
           'operatorType' => CRM_Report_Form::OP_DATE,
           'type' => CRM_Utils_Type::T_DATE,
-        ),
-        'relay_status' => array(
+        ],
+        'relay_status' => [
           'title' => ts('Relayed Status'),
           'type' => CRM_Utils_Type::T_INT,
           'operatorType' => CRM_Report_Form::OP_MULTISELECT,
@@ -107,73 +119,53 @@ class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report
             2 => 'Failed',
             3 => 'Ignored',
           ],
-        ),
-        'data' => array(
+        ],
+        'data' => [
           'title' => ts('Data'),
           'operatorType' => CRM_Report_Form::OP_STRING,
           'type' => CRM_Utils_Type::T_STRING,
-        ),
-      ),
+        ],
+      ],
     ];
   }
 
   function preProcess() {
     $this->assign('reportTitle', ts("SparkPost Router Messages"));
-
     parent::preProcess();
-  }
-
-  /**
-   * Generic select function.
-   * Most reports who declare columns implicitely will call this and also define more columnHeaders.
-   */
-  function select() {
-/*
-    $select = $this->_columnHeaders = array();
-
-    foreach ($this->_columns as $tableName => $table) {
-      if (array_key_exists('fields', $table)) {
-        foreach ($table['fields'] as $fieldName => $field) {
-          if (CRM_Utils_Array::value('required', $field) || CRM_Utils_Array::value($fieldName, $this->_params['fields'])) {
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
-          }
-        }
-      }
-    }
-*/
-
-    parent::select();
-
-    // Remove the "subject" from the query
-    // FIXME: there is a cleaner way of doing this.
-    $this->_select = preg_replace('/, spm_civireport.subject as civicrm_sparkpost_router_subject/', '', $this->_select);
   }
 
   function from() {
     $this->_from = 'FROM civicrm_sparkpost_router as spm_civireport';
   }
 
-  /**
-   * This is only to apply the date filters. It is the template code from CiviCRM reports.
-   * Child reports are expected to apply their own filters on the query as well.
-   */
-  function where() {
-    // This should not be necessary, but for some reason
-    // the where clauses do not get generated otherwise.
-    $this->setParams($this->controller->exportValues($this->_name));
-
-    parent::where();
+  public function limit($rowCount = self::ROW_COUNT_LIMIT) {
+    if ($rowCount) {
+      // $this->_limit = 'LIMIT ' . $rowCount;
+    }
   }
 
-  public function limit($rowCount = self::ROW_COUNT_LIMIT) {
-    $this->_limit = 'LIMIT 500';
+  public function postProcess() {
+    // Require a subaccount ID, otherwise the report might be huge
+    // @todo And also if someone guesses the ID of another client, it can leak data.
+    // (although we only provide this to a few partners)
+    $subaccount_id = $this->_submitValues['subaccount_id_value'] ?? NULL;
+
+    if (!$subaccount_id) {
+      CRM_Core_Session::setStatus(ts('Please enter a subaccount ID.'), ts('Error'), 'error');
+      return;
+    }
+
+    parent::postProcess();
   }
 
   public function alterDisplay(&$rows) {
+    parent::alterDisplay($rows);
+
     foreach ($rows as &$row) {
       $data = json_decode($row['civicrm_sparkpost_router_data']);
-      $row['civicrm_sparkpost_router_subject'] = $data->subject;
+      $row['civicrm_sparkpost_router_subject'] = $data->subject ?? '';
+      $row['civicrm_sparkpost_router_email'] = $data->rcpt_to ?? '';
+      $row['civicrm_sparkpost_router_reason'] = $data->raw_reason ?? '';
     }
   }
 
