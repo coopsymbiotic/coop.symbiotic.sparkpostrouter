@@ -52,7 +52,7 @@ class CRM_Sparkpostrouter_Page_Callback extends CRM_Core_Page {
           2 => [date('YmdHis'), 'Timestamp'],
           3 => [$event->customer_id, 'Positive'],
           4 => [$subaccount_id, 'Integer'],
-          5 => [$event->message_id, 'String'],
+          5 => [$event->message_id ?? 'unknown', 'String'],
           6 => [json_encode($event), 'String'],
       ]);
     }
