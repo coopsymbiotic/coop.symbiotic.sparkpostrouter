@@ -148,7 +148,7 @@ class CRM_Sparkpostrouter_Form_Report_SparkpostRouterMessages extends CRM_Report
     // Require a subaccount ID, otherwise the report might be huge
     // @todo And also if someone guesses the ID of another client, it can leak data.
     // (although we only provide this to a few partners)
-    $subaccount_id = $this->_submitValues['subaccount_id_value'] ?? NULL;
+    $subaccount_id = $this->_submitValues['subaccount_id_value'] ?? $this->_formValues['subaccount_id_value'] ?? NULL;
 
     if (!$subaccount_id) {
       CRM_Core_Session::setStatus(ts('Please enter a subaccount ID.'), ts('Error'), 'error');
