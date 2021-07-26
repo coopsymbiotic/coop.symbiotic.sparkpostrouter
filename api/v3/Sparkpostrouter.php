@@ -51,6 +51,9 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     if (preg_match('/^[-_0-9a-zA-Z]+\+([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
       $subaddress = $matches[1];
     }
+    elseif (preg_match('/^no-reply-([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
+      $subaddress = $matches[1];
+    }
 
     // Lookup subaccount, it can be zero
     if (isset($event->subaccount_id)) {
