@@ -9,7 +9,7 @@
   <item>
     <path>civicrm/admin/setting/sparkpostrouter</path>
     <title>SparkPost Router Settings</title>
-    <page_callback>CRM_Sparkpostrouter_Form_Settings</page_callback>
+    <page_callback>CRM_Admin_Form_Generic</page_callback>
     <adminGroup>System Settings</adminGroup>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
