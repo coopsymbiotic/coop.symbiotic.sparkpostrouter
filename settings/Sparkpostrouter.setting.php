@@ -1,40 +1,24 @@
 <?php
 
 return [
-  'sparkpostrouter_subaccount_field' => [
+  'sparkpostrouter_ignore_subaccounts' => [
     'group_name' => 'SparkPost Router Settings',
     'group' => 'sparkpostrouter',
-    'name' => 'sparkpostrouter_subaccount_field',
+    'name' => 'sparkpostrouter_ignore_subaccounts',
     'type' => 'Text',
     'quick_form_type' => 'Element',
-    'html_type' => 'Select',
-    'pseudoconstant' => array(
-      'callback' => 'CRM_Core_I18n::languages',
-    ),
+    'html_type' => 'Text',
     'default' => NULL,
     'add' => '1.0',
     'is_domain' => 1,
     'is_contact' => 0,
-    'title' => 'Custom field with the subaccount ID',
-    'description' => '',
+    'title' => 'Ignore Sub-Accounts',
+    'description' => 'Comma-separated list of sub-accounts to ignore.',
     'help_text' => '',
-  ],
-  'sparkpostrouter_domain_field' => [
-    'group_name' => 'SparkPost Router Settings',
-    'group' => 'sparkpostrouter',
-    'name' => 'sparkpostrouter_domain_field',
-    'type' => 'Text',
-    'quick_form_type' => 'Element',
-    'html_type' => 'Select',
-    'pseudoconstant' => array(
-      'callback' => 'CRM_Core_I18n::languages',
-    ),
-    'default' => NULL,
-    'add' => '1.0',
-    'is_domain' => 1,
-    'is_contact' => 0,
-    'title' => 'Custom field with the permitted domains',
-    'description' => '',
-    'help_text' => '',
+    'settings_pages' => [
+      'sparkpostrouter' => [
+        'weight' => 20,
+      ],
+    ],
   ],
 ];
