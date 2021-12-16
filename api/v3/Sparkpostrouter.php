@@ -15,9 +15,13 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
   $errors = 0;
 
   $client = new GuzzleHttp\Client();
-
   $custom_table_name = CRM_Core_DAO::singleValueQuery('SELECT table_name FROM civicrm_custom_group WHERE name = "Sparkpost_Router"');
+  $ignore_subaccounts = Civi::settings()->get('sparkpostrouter_ignore_subaccounts');
   $dao = NULL;
+
+  if ($ignore_subaccounts) {
+    $ignore_subaccounts = explode(',', $ignore_subaccounts);
+  }
 
   // Allow force-replay of a specific message if the ID is provided.
   if (!empty($params['id'])) {
@@ -54,9 +58,23 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     elseif (preg_match('/^no-reply-([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
       $subaddress = $matches[1];
     }
+    elseif (preg_match('/^sansreponse-([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
+      $subaddress = $matches[1];
+    }
+    elseif (preg_match('/^sans-reponse-([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
+      $subaddress = $matches[1];
+    }
 
     // Lookup subaccount, it can be zero
     if (isset($event->subaccount_id)) {
+      if (in_array($event->subaccount_id, $ignore_subaccounts)) {
+        // @todo Document statuses? (3 = ignored)
+        CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 3, relay_date = NOW() WHERE id = %1', [
+          1 => [$dao->id, 'Positive'],
+        ]);
+        continue;
+      }
+
       if ($subaddress) {
         $webhook_url = CRM_Core_DAO::singleValueQuery('SELECT sparkpost_webhook_url FROM ' . $custom_table_name . ' WHERE sparkpost_subaccount = %1 AND subaddress = %2', [
           1 => [$event->subaccount_id, 'Integer'],
