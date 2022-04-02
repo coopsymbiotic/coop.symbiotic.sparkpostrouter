@@ -99,7 +99,7 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     }
 
     if (!$webhook_url) {
-      throw new Exception("SparkpostRouter: webhook not found (check the contact record for that client): subaccount_id {$event->subaccount_id}, domain: {$sender_domain}, subaddress: {$subaddress}.");
+      throw new Exception("SparkpostRouter: webhook not found (check the contact record for that client): ID {$dao->id}, subaccount_id {$event->subaccount_id}, domain: {$sender_domain}, subaddress: {$subaddress}.");
     }
 
     $obj = new stdClass();
