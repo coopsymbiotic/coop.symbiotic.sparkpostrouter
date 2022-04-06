@@ -119,6 +119,18 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       $code = $response->getStatusCode();
 
       if ($code == 200) {
+        $body = $response->getBody()->getContents();
+
+        // We expect an empty body, otherwise maybe the CMS served default page with a 200 response
+        if (!empty($body)) {
+          Civi::log()->error('SparkpostRouter: error processing message, invalid response body. Make sure the URL is correct.', [
+            'error' => 'Received http body ' . $body,
+            'webhook' => $webhook_url,
+            'data' => $data,
+          ]);
+          throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
+        }
+
         CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 1, relay_date = NOW() WHERE id = %1', [
           1 => [$dao->id, 'Positive'],
         ]);
@@ -130,7 +142,6 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
           'webhook' => $webhook_url,
           'data' => $data,
         ]);
-
         throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
       }
     }
@@ -140,7 +151,6 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
         'webhook' => $webhook_url,
         'data' => $data,
       ]);
-
       throw new Exception('SparkpostRouter: error processing message to webhook: ' . $webhook_url . ': ' . $e->getMessage());
     }
   }
