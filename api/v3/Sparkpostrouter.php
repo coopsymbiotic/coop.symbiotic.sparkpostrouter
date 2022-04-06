@@ -128,7 +128,7 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
             'webhook' => $webhook_url,
             'data' => $data,
           ]);
-          throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
+          throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response body (non-empty). Make sure the URL is correct. View ConfigAndLog for more info.");
         }
 
         CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 1, relay_date = NOW() WHERE id = %1', [
