@@ -11,5 +11,6 @@ CREATE TABLE civicrm_sparkpost_router (
   `subaccount_id` int(10) unsigned NOT NULL COMMENT 'SparkPost subaccount ID',
   `message_id` varchar(32) DEFAULT NULL COMMENT 'SparkPost message ID',
   `data` text DEFAULT NULL COMMENT 'Sparkpost message',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_relay_status` (relay_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
