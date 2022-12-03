@@ -51,7 +51,7 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     }
 
     // Check for a subaddress
-    // friendly_from
+    // @todo This first preg_match matches all the cases under it?
     if (preg_match('/^[-_0-9a-zA-Z]+\+([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
       $subaddress = $matches[1];
     }
@@ -63,6 +63,16 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
     }
     elseif (preg_match('/^sans-reponse-([0-9a-zA-Z]+)@/', $event->friendly_from, $matches)) {
       $subaddress = $matches[1];
+    }
+
+    // Check the domain for special cases
+    // CiviCRM Spark
+    if ($subaddress && preg_match('/@(.*)$/', $event->friendly_from, $matches)) {
+      $from_domain = $matches[1];
+
+      if ($from_domain == 'notification.civimail.org') {
+        $webhook_url = 'https://' . $subaddress . '.civicrm.org/civicrm/sparkpost/callback';
+      }
     }
 
     // Lookup subaccount, it can be zero
@@ -120,15 +130,17 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
 
       if ($code == 200) {
         $body = $response->getBody()->getContents();
+        $body = trim($body);
 
         // We expect an empty body, otherwise maybe the CMS served default page with a 200 response
         if (!empty($body)) {
           Civi::log()->error('SparkpostRouter: error processing message, invalid response body. Make sure the URL is correct.', [
+            'id' => $dao->id,
             'error' => 'Received http body ' . $body,
             'webhook' => $webhook_url,
             'data' => $data,
           ]);
-          throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response body (non-empty). Make sure the URL is correct. View ConfigAndLog for more info.");
+          throw new Exception("SparkpostRouter: error processing message {$dao->id}, subaccount_id {$event->subaccount_id} to webhook: $webhook_url : invalid http response body (non-empty). Make sure the URL is correct. View ConfigAndLog for more info.");
         }
 
         CRM_Core_DAO::executeQuery('UPDATE civicrm_sparkpost_router SET relay_status = 1, relay_date = NOW() WHERE id = %1', [
@@ -138,20 +150,22 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       }
       else {
         Civi::log()->error('SparkpostRouter: error processing message, invalid response code. Make sure it is not redirecting.', [
+          'id' => $dao->id,
           'error' => 'Received http response ' . $code,
           'webhook' => $webhook_url,
           'data' => $data,
         ]);
-        throw new Exception("SparkpostRouter: error processing message to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
+        throw new Exception("SparkpostRouter: error processing message {$dao->id}, subaccount_id {$event->subaccount_id} to webhook: $webhook_url : invalid http response code ($code). Make sure it is not redirecting.");
       }
     }
     catch (Exception $e) {
       Civi::log()->error('SparkpostRouter: error processing message', [
+        'id' => $dao->id,
         'error' => $e->getMessage(),
         'webhook' => $webhook_url,
         'data' => $data,
       ]);
-      throw new Exception('SparkpostRouter: error processing message to webhook: ' . $webhook_url . ': ' . $e->getMessage());
+      throw new Exception("SparkpostRouter: error processing message ID {$dao->id}, subaccount_id {$event->subaccount_id} to webhook: $webhook_url: " . $e->getMessage());
     }
   }
 
