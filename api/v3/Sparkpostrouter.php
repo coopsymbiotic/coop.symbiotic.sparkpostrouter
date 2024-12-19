@@ -35,10 +35,6 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
 
   while ($dao->fetch()) {
     $event = json_decode($dao->data);
-    $friendly_from = $event->friendly_from;
-    $sender_domain = explode('@', $friendly_from)[1];
-    $subaddress = '';
-    $webhook_url = NULL;
 
     if (!in_array($event->type, ['bounce', 'spam_complaint', 'policy_rejection', 'open', 'click'])) {
       // FIXME:
@@ -49,6 +45,11 @@ function civicrm_api3_sparkpostrouter_process_messages($params) {
       $processed++;
       continue;
     }
+
+    $friendly_from = $event->friendly_from;
+    $sender_domain = explode('@', $friendly_from)[1];
+    $subaddress = '';
+    $webhook_url = NULL;
 
     // Check for a subaddress
     // @todo This first preg_match matches all the cases under it?
